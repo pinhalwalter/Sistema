@@ -3,7 +3,7 @@ import { Button, Spinner, Col, Form, InputGroup,
  } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
 import { consultarCategoria } from '../../../servicos/servicoCategoria';
-import { gravarProduto } from '../../../servicos/servicoProduto';
+import { gravarProduto, alterarProduto } from '../../../servicos/servicoProduto';
 
 import toast, {Toaster} from 'react-hot-toast';
 
@@ -30,11 +30,7 @@ export default function FormCadProdutos(props) {
     },[]); //didMount
 
     function selecionarCategoria(evento){
-        setProduto({...produto, 
-                       categoria:{
-                        codigo: evento.currentTarget.value
-
-                       }});
+        setProduto({...produto, categoria:{codigo: evento.currentTarget.value}});
     }
 
     function manipularSubmissao(evento) {
@@ -43,8 +39,7 @@ export default function FormCadProdutos(props) {
 
             if (!props.modoEdicao) {
                 //cadastrar o produto
-                gravarProduto(produto)
-                .then((resultado)=>{
+                gravarProduto(produto).then((resultado)=>{
                     if (resultado.status){
                         //exibir tabela com o produto incluído
                         props.setExibirTabela(true);
@@ -64,12 +59,23 @@ export default function FormCadProdutos(props) {
                 ), produto]);*/
 
                 //não altera a ordem dos registros
+                /*
                 props.setListaDeProdutos(props.listaDeProdutos.map((item) => {
                     if (item.codigo !== produto.codigo)
                         return item
                     else
                         return produto
                 }));
+                */
+                alterarProduto(produto).then((resultado)=>{
+                    if (resultado.status){
+                        //exibir tabela com o produto incluído
+                        toast.success(resultado.mensagem);
+                    }
+                    else{
+                        toast.error(resultado.mensagem);
+                    }
+                });
 
                 //voltar para o modo de inclusão
                 props.setModoEdicao(false);

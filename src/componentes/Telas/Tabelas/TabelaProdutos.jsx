@@ -1,4 +1,6 @@
 import { Button, Container, Table } from "react-bootstrap";
+import toast, { Toaster } from "react-hot-toast";
+import { serviceExcluirProduto } from "../../../servicos/servicoProduto";
 
 export default function TabelaProdutos(props) {
 
@@ -10,11 +12,20 @@ export default function TabelaProdutos(props) {
 
     function excluirProduto(produto){
         if(window.confirm("Deseja realmente excluir o produto " + produto.descricao)){
-            //abordagem utilizando a sintaxe permitida da linguagem
-            props.setListaDeProdutos(props.listaDeProdutos.filter(
-                (item)=>{
-                            return item.codigo != produto.codigo     
-                        }));
+            serviceExcluirProduto(produto).then((resultado) => {
+                if (resultado.status) {
+                    toast.success(resultado.mensagem);
+                }
+                else {
+                    toast.error(resultado.mensagem);
+                }
+            });
+
+            // //abordagem utilizando a sintaxe permitida da linguagem
+            // props.setListaDeProdutos(props.listaDeProdutos.filter(
+            //     (item)=>{
+            //                 return item.codigo !== produto.codigo     
+            //             }));
 
             //abordagem elementar            
             /*let novaLista= []
@@ -24,6 +35,9 @@ export default function TabelaProdutos(props) {
                 }
             }
             props.setListaDeProdutos(novaLista);*/
+        }
+        else {
+            toast.error("Exclusão cancelada!");
         }
     }
 
@@ -87,6 +101,7 @@ export default function TabelaProdutos(props) {
                 </Table>
                 <p>Quatidade de produtos cadastrados: {props.listaDeProdutos.length}</p>
             </Container>
+            <Toaster position="top-right" reverseOrder={false}></Toaster>
         </>
     );
 }

@@ -1,4 +1,5 @@
-const urlBase = 'https://bcc-backend-lp-2.vercel.app/categorias';
+const urlBase = 'https://backend-lp2-mauve.vercel.app/categorias';
+//const urlBase = 'http://localhost:4000/produtos';
 
 export async function gravarCategoria(categoria){
     const resposta = await fetch(urlBase,{
