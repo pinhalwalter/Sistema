@@ -2,6 +2,7 @@ import { Button, Container, Table } from "react-bootstrap";
 import toast, { Toaster } from "react-hot-toast";
 import { serviceExcluirProduto } from "../../../servicos/servicoProduto";
 
+
 export default function TabelaProdutos(props) {
 
     function editarProduto(produto){
