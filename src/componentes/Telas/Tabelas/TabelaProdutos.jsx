@@ -4,6 +4,11 @@ import { serviceExcluirProduto } from "../../../servicos/servicoProduto";
 
 
 export default function TabelaProdutos(props) {
+    const formatarData = (data) => {
+        if (!data) return "";
+        const DT = new Date(data);
+        return DT.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+    };
 
     function editarProduto(produto){
         props.setModoEdicao(true);
@@ -21,21 +26,6 @@ export default function TabelaProdutos(props) {
                     toast.error(resultado.mensagem);
                 }
             });
-
-            // //abordagem utilizando a sintaxe permitida da linguagem
-            // props.setListaDeProdutos(props.listaDeProdutos.filter(
-            //     (item)=>{
-            //                 return item.codigo !== produto.codigo     
-            //             }));
-
-            //abordagem elementar            
-            /*let novaLista= []
-            for (let i=0; i < props.listaDeProdutos.length; i++){
-                if (props.listaDeProdutos[i].codigo != produto.codigo){
-                    novaLista.push(props.listaDeProdutos[i])
-                }
-            }
-            props.setListaDeProdutos(novaLista);*/
         }
         else {
             toast.error("Exclusão cancelada!");
@@ -60,11 +50,12 @@ export default function TabelaProdutos(props) {
                         <th>Qtd. em estoque</th>
                         <th>Imagem</th>
                         <th>Validade</th>
+                        <th>Categoria</th>
                         <th>Ações</th>
                     </thead>
                     <tbody>
                         {
-                            props.listaDeProdutos?.map((produto) => {
+                            props?.listaDeProdutos?.map((produto) => {
                                 return (
                                     <tr>
                                         <td>{produto.codigo}</td>
@@ -76,7 +67,8 @@ export default function TabelaProdutos(props) {
                                                           "width":"40px",
                                                           "height":"40px"
                                                         }} src={produto.urlImagem} alt="foto do produto" /></td>
-                                        <td>{produto.dataValidade}</td>
+                                        <td>{formatarData(produto.dataValidade)}</td>
+                                        <td>{produto.categoria.descricao}</td>
                                         <td>
                                             <Button onClick={()=>{
                                                 editarProduto(produto);

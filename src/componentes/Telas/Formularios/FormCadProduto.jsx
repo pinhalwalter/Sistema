@@ -1,36 +1,48 @@
-import { Button, Spinner, Col, Form, InputGroup,
-         Row
- } from 'react-bootstrap';
+import {
+    Button, Spinner, Col, Form, InputGroup,
+    Row
+} from 'react-bootstrap';
 import { useState, useEffect } from 'react';
 import { consultarCategoria } from '../../../servicos/servicoCategoria';
 import { gravarProduto, alterarProduto } from '../../../servicos/servicoProduto';
 
-import toast, {Toaster} from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function FormCadProdutos(props) {
-    const [produto, setProduto] = useState(props.produtoSelecionado);
+    const formatarData = (data) => {
+        if (!data) return "";
+
+        const dataObj = new Date(data);
+        return dataObj.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+    };
+
+    const [produto, setProduto] = useState({
+        ...props.produtoSelecionado,
+        dataValidade: formatarData(props.produtoSelecionado.dataValidade)
+    });
+
     const [formValidado, setFormValidado] = useState(false);
     const [categorias, setCategorias] = useState([]);
     const [temCategorias, setTemCategorias] = useState(false);
 
-    useEffect(()=>{
-        consultarCategoria().then((resultado)=>{
-            if (Array.isArray(resultado)){
+    useEffect(() => {
+        consultarCategoria().then((resultado) => {
+            if (Array.isArray(resultado)) {
                 setCategorias(resultado);
                 setTemCategorias(true);
             }
-            else{
+            else {
                 toast.error("Não foi possível carregar as categorias");
             }
-        }).catch((erro)=>{
+        }).catch((erro) => {
             setTemCategorias(false);
             toast.error("Não foi possível carregar as categorias");
         });
-        
-    },[]); //didMount
 
-    function selecionarCategoria(evento){
-        setProduto({...produto, categoria:{codigo: evento.currentTarget.value}});
+    }, []); //didMount
+
+    function selecionarCategoria(evento) {
+        setProduto({ ...produto, categoria: { codigo: evento.currentTarget.value } });
     }
 
     function manipularSubmissao(evento) {
@@ -39,40 +51,23 @@ export default function FormCadProdutos(props) {
 
             if (!props.modoEdicao) {
                 //cadastrar o produto
-                gravarProduto(produto).then((resultado)=>{
-                    if (resultado.status){
+                gravarProduto(produto).then((resultado) => {
+                    if (resultado.status) {
                         //exibir tabela com o produto incluído
                         props.setExibirTabela(true);
                     }
-                    else{
+                    else {
                         toast.error(resultado.mensagem);
                     }
                 });
             }
             else {
-                //editar o produto
-                /*altera a ordem dos registros
-                props.setListaDeProdutos([...props.listaDeProdutos.filter(
-                    (item) => {
-                        return item.codigo !== produto.codigo;
-                    }
-                ), produto]);*/
-
-                //não altera a ordem dos registros
-                /*
-                props.setListaDeProdutos(props.listaDeProdutos.map((item) => {
-                    if (item.codigo !== produto.codigo)
-                        return item
-                    else
-                        return produto
-                }));
-                */
-                alterarProduto(produto).then((resultado)=>{
-                    if (resultado.status){
+                alterarProduto(produto).then((resultado) => {
+                    if (resultado.status) {
                         //exibir tabela com o produto incluído
                         toast.success(resultado.mensagem);
                     }
-                    else{
+                    else {
                         toast.error(resultado.mensagem);
                     }
                 });
@@ -102,7 +97,13 @@ export default function FormCadProdutos(props) {
 
     function manipularMudanca(evento) {
         const elemento = evento.target.name;
-        const valor = evento.target.value;
+        let valor = evento.target.value;
+
+        if (elemento === "dataValidade") {
+            const [dia, mes, ano] = valor.split('/');
+            valor = `${ano}-${mes}-${dia}`;
+        }
+
         setProduto({ ...produto, [elemento]: valor });
     }
 
@@ -222,23 +223,23 @@ export default function FormCadProdutos(props) {
                 </Form.Group>
                 <Form.Group as={Col} md={7}>
                     <Form.Label>Categoria:</Form.Label>
-                    <Form.Select id='categoria' 
-                                 name='categoria'
-                                 onChange={selecionarCategoria}>
+                    <Form.Select id='categoria'
+                        name='categoria'
+                        onChange={selecionarCategoria}>
                         {// criar em tempo de execução as categorias existentes no banco de dados
-                            categorias.map((categoria) =>{
+                            categorias.map((categoria) => {
                                 return <option value={categoria.codigo}>
-                                            {categoria.descricao}
-                                       </option>
+                                    {categoria.descricao}
+                                </option>
                             })
                         }
-                        
+
                     </Form.Select>
                 </Form.Group>
                 <Form.Group as={Col} md={1}>
                     {
-                      !temCategorias ? <Spinner className='mt-4' animation="border" variant="success" />
-                      : ""
+                        !temCategorias ? <Spinner className='mt-4' animation="border" variant="success" />
+                            : ""
                     }
                 </Form.Group>
             </Row>
@@ -252,8 +253,8 @@ export default function FormCadProdutos(props) {
                     }}>Voltar</Button>
                 </Col>
             </Row>
-            <Toaster position="top-right"/>
+            <Toaster position="top-right" />
         </Form>
-        
+
     );
 }
